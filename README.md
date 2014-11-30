@@ -8,6 +8,7 @@ The binary clock displays weather information under the following conditions:
 * Current weather condition is rain, snow, sleet, wind or fog
 * If precipitation is expected in the next hour
 
+![Raspberry PI binary clock](https://raw.githubusercontent.com/sharjeelaziz/binary-clock/master/0.jpg)
 
 Pre-requisites
 --------------
