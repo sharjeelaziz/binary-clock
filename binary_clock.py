@@ -31,7 +31,7 @@ def draw_weather_icon(icon):
 		
 def get_time_difference(d1, d2):
 	d1_ts = time.mktime(d1.timetuple())
-	d2_ts = time.mktime(d1.timetuple())
+	d2_ts = time.mktime(d2.timetuple())
 	return int(d2_ts - d1_ts) / 60
 		
 def check_weather():
@@ -96,16 +96,13 @@ def check_weather():
 		try:
 			if (float(current_data.precipIntensity) > 0):
 				if (float(minutely_data[i].precipIntensity) == 0):
-					weather_statement += " %s stopping in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
+					weather_statement += " %s stopping in %s minutes" % (current_data.icon, get_time_difference(current_data.time, minutely_data[i].time))
 					break
 		except:
 			print "caught exception for stopping"
 		
 	return {'icon': current_data.icon, 'statement': weather_statement}		
 
-
-led.init()
-led.brightness(0)
 
 def draw_wide_row(n, r):
 	if ((n & 8) >> 3):
@@ -194,6 +191,8 @@ def draw_time():
 	time.sleep(0.30)
 	
 
+led.init()
+led.brightness(0)
 weather_interval = 120.0 # interval in seconds 
 next_weather_check = time.time() + weather_interval 
 	
