@@ -198,10 +198,9 @@ led.init()
 led.brightness(0)
 weather_interval = 120.0 # interval in seconds 
 next_weather_check = time.time() + weather_interval 
+weather_info = {}
 	
 while True:
-	weather_info = {}
-	
 	now = time.time() 
 	if now > next_weather_check:
 		try:
