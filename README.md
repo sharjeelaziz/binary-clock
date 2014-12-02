@@ -40,7 +40,7 @@ The breakout board has an two headers to allow daisy-chaining:
 
 Weather
 -------
-You need an API key to use it (http://developer.forecast.io). The key is free for 1000 calls per day.
+You need an API key to use it (http://developer.forecast.io). The key is free for 1000 calls per day. To use the key rename config.json.sample to config.json and update the api_key and location with your values.
 
 References
 ----------
