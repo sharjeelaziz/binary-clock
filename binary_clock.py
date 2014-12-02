@@ -6,6 +6,7 @@ import max7219.transitions as transitions
 import time
 import datetime
 import forecastio
+import json
 
 weather_icons = {
 'clear-day': [0x81,0x5a,0x3c,0x7e,0x7e,0x3c,0x5a,0x81], 
@@ -34,13 +35,8 @@ def get_time_difference(d1, d2):
 	d2_ts = time.mktime(d2.timetuple())
 	return int(d2_ts - d1_ts) / 60
 		
-def check_weather():
-	
-	api_key = "YOUR API KEY"
-	
-	lat = 43.6312
-	lng = -111.7736
-	
+def check_weather(api_key, lat, lng):
+		
 	forecast = forecastio.load_forecast(api_key, lat, lng)
 	
 	current_data = forecast.currently()
@@ -191,6 +187,13 @@ def draw_time():
 	time.sleep(0.30)
 	
 
+with open('config.json') as json_data_file:
+	config = json.load(json_data_file)
+	
+api_key = config['forecastio']['api_key']
+lat = config['forecastio']['lat']
+lng = config['forecastio']['lng']
+	
 led.init()
 led.brightness(0)
 weather_interval = 120.0 # interval in seconds 
@@ -202,7 +205,7 @@ while True:
 	now = time.time() 
 	if now > next_weather_check:
 		try:
-			weather_info = check_weather()
+			weather_info = check_weather(api_key, lat, lng)
 		except ValueError:
 			print "check_weather raised an exception."	
 		next_weather_check = now + weather_interval
