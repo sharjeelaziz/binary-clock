@@ -1,0 +1,7 @@
+{
+	"forecastio":{
+		"api_key":"YOUR API KEY",
+		"lat":"43.6312",
+		"lng":"-111.7736"
+	}
+}
