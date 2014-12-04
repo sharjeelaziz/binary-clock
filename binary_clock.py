@@ -18,7 +18,8 @@ weather_icons = {
 'fog':[0xaa,0x55,0xaa,0x55,0xaa,0x55,0xaa,0x55], 
 'cloudy':[0xc,0x1e,0x1e,0x1f,0x1f,0x1f,0x1e,0xc], 
 'partly-cloudy-day':[0x18,0x24,0x24,0x22,0x22,0x22,0x24,0x18],
-'partly-cloudy-night':[0xe7,0xdb,0xdb,0xdf,0xdd,0xdd,0xdb,0xe7]
+'partly-cloudy-night':[0xe7,0xdb,0xdb,0xdf,0xdd,0xdd,0xdb,0xe7],
+'default' :[0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08]
 }
 
 
@@ -186,6 +187,15 @@ def draw_time():
 	canvas.render()
 	time.sleep(0.30)
 	
+def heartbeat():
+	if (heartbeat.toggle):
+		canvas.set_on(7,7)
+	else:
+		canvas.set_off(7,7)
+	heartbeat.toggle = not heartbeat.toggle
+
+heartbeat.toggle = False
+	
 
 with open('config.json') as json_data_file:
 	config = json.load(json_data_file)
@@ -198,9 +208,9 @@ led.init()
 led.brightness(0)
 weather_interval = 120.0 # interval in seconds 
 next_weather_check = time.time() + weather_interval 
+weather_info = {'icon': 'default', 'statement': ''}
 	
-while True:
-	weather_info = {}
+while True:	
 	
 	now = time.time() 
 	if now > next_weather_check:
@@ -210,11 +220,11 @@ while True:
 			print "check_weather raised an exception."	
 		next_weather_check = now + weather_interval
 		
-	if (len(weather_info) > 0):
-		if (len(weather_info['statement']) > 0):
+	if (len(weather_info['statement'].strip()) > 0):
 			draw_weather_icon(weather_info['icon'])
 			time.sleep(2)
 			led.show_message(weather_info['statement'], transition = transitions.left_scroll)
-	
 	else:
 		draw_time()
+	
+	heartbeat()
