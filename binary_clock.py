@@ -100,78 +100,43 @@ def check_weather(api_key, lat, lng):
 		
 	return {'icon': current_data.icon, 'statement': weather_statement}		
 
+def led_switch(row, col, state):
+	if (state):
+		canvas.set_on(row, col)
+	else:
+		canvas.set_off(row, col)
+	
 
 def draw_wide_row(n, r):
-	if ((n & 8) >> 3):
-		canvas.set_on(r, 0)
-		canvas.set_on(r, 1)
-	else:
-		canvas.set_off(r, 0)
-		canvas.set_off(r, 1)
-		
-	if ((n & 4) >> 2):
-		canvas.set_on(r, 2)
-		canvas.set_on(r, 3)
-	else:
-		canvas.set_off(r, 2)
-		canvas.set_off(r, 3)
 	
-	if ((n & 2) >> 1):
-		canvas.set_on(r, 4)
-		canvas.set_on(r, 5)
-	else:
-		canvas.set_off(r, 4)
-		canvas.set_off(r, 5)
-	if (n & 1):
-		canvas.set_on(r, 6)
-		canvas.set_on(r, 7)
-	else:
-		canvas.set_off(r, 6)
-		canvas.set_off(r, 7)
+	led_switch(r, 0, ((n & 8) >> 3))
+	led_switch(r, 1, ((n & 8) >> 3))
+		
+	led_switch(r, 2, ((n & 4) >> 2))
+	led_switch(r, 3, ((n & 4) >> 2))
+	
+	led_switch(r, 4, ((n & 2) >> 1))
+	led_switch(r, 5, ((n & 2) >> 1))
+
+	led_switch(r, 6, (n & 1))
+	led_switch(r, 7, (n & 1))
+
 
 def draw_bcd_row(n, r):
 	tens = n // 10
 	ones = n % 10
 	
-	if ((tens & 8) >> 3):
-		canvas.set_on(r,0)
-	else:
-		canvas.set_off(r,0)
+	led_switch(r, 0, ((tens & 8) >> 3))
+	led_switch(r, 1, ((tens & 4) >> 2))
 		
-	if ((tens & 4) >> 2):
-		canvas.set_on(r,1)
-	else:
-		canvas.set_off(r,1)
-		
-	if ((tens & 2) >> 1):
-		canvas.set_on(r, 2)
-	else:
-		canvas.set_off(r, 2)
-		
-	if (tens & 1):
-		canvas.set_on(r, 3)
-	else:
-		canvas.set_off(r, 3)
+	led_switch(r, 2, ((tens & 2) >> 1))
+	led_switch(r, 3, (tens & 1))
 
-	if ((ones & 8) >> 3):
-		canvas.set_on(r, 4)
-	else:
-		canvas.set_off(r, 4)
+	led_switch(r, 4, ((ones & 8) >> 3))
+	led_switch(r, 5, ((ones & 4) >> 2))
 	
-	if ((ones & 4) >> 2):
-		canvas.set_on(r, 5)
-	else:
-		canvas.set_off(r, 5)
-	
-	if ((ones & 2) >> 1):
-		canvas.set_on(r, 6)
-	else:
-		canvas.set_off(r, 6)
-	
-	if (ones & 1):
-		canvas.set_on(r, 7)
-	else:
-		canvas.set_off(r, 7)
+	led_switch(r, 6, ((ones & 2) >> 1))
+	led_switch(r, 7,(ones & 1))
 		
 def draw_time():
 	dt = datetime.datetime.now()
@@ -188,10 +153,7 @@ def draw_time():
 	time.sleep(0.30)
 	
 def heartbeat():
-	if (heartbeat.toggle):
-		canvas.set_on(7,7)
-	else:
-		canvas.set_off(7,7)
+	led_switch(7, 0, heartbeat.toggle)
 	heartbeat.toggle = not heartbeat.toggle
 
 heartbeat.toggle = False
