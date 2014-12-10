@@ -74,33 +74,38 @@ def check_weather(api_key, lat, lng):
 	# 0.1 in./hr. corresponds to moderate precipitation, 
 	# and 0.4 in./hr. corresponds to heavy precipitation.
 
-	for i in range(len(minutely_data)):
-		try:
-			if (float(current_data.precipIntensity) < 0.017):
-				if (float(minutely_data[i].precipIntensity) >= 0.017 and float(minutely_data[i].precipIntensity) < .1):
-					weather_statement += "Light %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
-					break
-				if (float(minutely_data[i].precipIntensity) >= 0.1 and float(minutely_data[i].precipIntensity) < .4):
-					weather_statement += "Moderate %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
-					break 
-				if (float(minutely_data[i].precipIntensity) >= .4):
-					weather_statement += "Heavy %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
-					break 
-		except:
-			print "caught exception for starting"
 
-	for i in range(len(minutely_data)):
-		try:
-			if (float(current_data.precipIntensity) > 0):
-				if (float(minutely_data[i].precipIntensity) == 0):
-					weather_statement += " %s stopping in %s minutes" % (current_data.icon, get_time_difference(current_data.time, minutely_data[i].time))
-					break
-		except:
-			print "caught exception for stopping"
+	if (current_data.icon == 'rain' or 
+	current_data.icon == 'snow' or 
+	current_data.icon == 'sleet'):
+	
+		for i in range(len(minutely_data)):
+			try:
+				if (float(current_data.precipIntensity) > 0):
+					if (float(minutely_data[i].precipIntensity) == 0):
+						weather_statement += " %s stopping in %s minutes" % (current_data.icon, get_time_difference(current_data.time, minutely_data[i].time))
+						break
+			except:
+				print "caught exception for stopping"
+	else:
+		for i in range(len(minutely_data)):
+			try:
+				if (float(current_data.precipIntensity) < 0.017):
+					if (float(minutely_data[i].precipIntensity) >= 0.017 and float(minutely_data[i].precipIntensity) < .1):
+						weather_statement += "Light %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
+						break
+					if (float(minutely_data[i].precipIntensity) >= 0.1 and float(minutely_data[i].precipIntensity) < .4):
+						weather_statement += "Moderate %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
+						break 
+					if (float(minutely_data[i].precipIntensity) >= .4):
+						weather_statement += "Heavy %s in %s minutes" % (minutely_data[i].precipType, get_time_difference(current_data.time, minutely_data[i].time))
+						break 
+			except:
+				print "caught exception for starting"		
 		
 	return {'icon': current_data.icon, 'statement': weather_statement}		
 
-def led_switch(row, col, state):
+def set_led(row, col, state):
 	if (state):
 		canvas.set_on(row, col)
 	else:
@@ -109,34 +114,34 @@ def led_switch(row, col, state):
 
 def draw_wide_row(n, r):
 	
-	led_switch(r, 0, ((n & 8) >> 3))
-	led_switch(r, 1, ((n & 8) >> 3))
+	set_led(r, 0, ((n & 8) >> 3))
+	set_led(r, 1, ((n & 8) >> 3))
 		
-	led_switch(r, 2, ((n & 4) >> 2))
-	led_switch(r, 3, ((n & 4) >> 2))
+	set_led(r, 2, ((n & 4) >> 2))
+	set_led(r, 3, ((n & 4) >> 2))
 	
-	led_switch(r, 4, ((n & 2) >> 1))
-	led_switch(r, 5, ((n & 2) >> 1))
+	set_led(r, 4, ((n & 2) >> 1))
+	set_led(r, 5, ((n & 2) >> 1))
 
-	led_switch(r, 6, (n & 1))
-	led_switch(r, 7, (n & 1))
+	set_led(r, 6, (n & 1))
+	set_led(r, 7, (n & 1))
 
 
 def draw_bcd_row(n, r):
 	tens = n // 10
 	ones = n % 10
 	
-	led_switch(r, 0, ((tens & 8) >> 3))
-	led_switch(r, 1, ((tens & 4) >> 2))
+	set_led(r, 0, ((tens & 8) >> 3))
+	set_led(r, 1, ((tens & 4) >> 2))
 		
-	led_switch(r, 2, ((tens & 2) >> 1))
-	led_switch(r, 3, (tens & 1))
+	set_led(r, 2, ((tens & 2) >> 1))
+	set_led(r, 3, (tens & 1))
 
-	led_switch(r, 4, ((ones & 8) >> 3))
-	led_switch(r, 5, ((ones & 4) >> 2))
+	set_led(r, 4, ((ones & 8) >> 3))
+	set_led(r, 5, ((ones & 4) >> 2))
 	
-	led_switch(r, 6, ((ones & 2) >> 1))
-	led_switch(r, 7,(ones & 1))
+	set_led(r, 6, ((ones & 2) >> 1))
+	set_led(r, 7,(ones & 1))
 		
 def draw_time():
 	dt = datetime.datetime.now()
@@ -153,7 +158,7 @@ def draw_time():
 	time.sleep(0.30)
 	
 def heartbeat():
-	led_switch(7, 0, heartbeat.toggle)
+	set_led(7, 0, heartbeat.toggle)
 	heartbeat.toggle = not heartbeat.toggle
 
 heartbeat.toggle = False
