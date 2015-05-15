@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import max7219.led as led
-import max7219.canvas as canvas
-import max7219.transitions as transitions
+from max7219.font import proportional, SINCLAIR_FONT, TINY_FONT, CP437_FONT
 import time
 import datetime
 import forecastio
@@ -31,7 +30,7 @@ def format_unix_time(t):
 def draw_weather_icon(icon):
     icon_bytes = weather_icons[icon]
     for col in range(8):
-        led.send_byte(col + 1, icon_bytes[col])
+        device.set_byte(0, col+1, icon_bytes[col])
 
 
 def get_time_difference(d1, d2):
@@ -59,7 +58,7 @@ def check_weather(api_key, lat, lng):
             (float(current_data.temperature) <= 32)):
 
         weather_statement = current_data.summary
-        weather_statement += " %s Feels like %s " % (current_data.temperature, current_data.apparentTemperature)
+        weather_statement += " %d feels like %d " % (int(current_data.temperature), int(current_data.apparentTemperature))
 
     alerts = forecast.alerts()
 
@@ -112,9 +111,9 @@ def check_weather(api_key, lat, lng):
 
 def set_led(row, col, state):
     if (state):
-        canvas.set_on(row, col)
+        device.pixel(col, row, 1)
     else:
-        canvas.set_off(row, col)
+        device.pixel(col, row, 0)
 
 
 def draw_wide_row(n, r):
@@ -160,7 +159,6 @@ def draw_time():
 
     draw_bcd_row(dt.minute, 3)
     draw_bcd_row(dt.second, 5)
-    canvas.render()
     time.sleep(0.30)
 
 
@@ -180,35 +178,32 @@ api_key = config['forecastio']['api_key']
 lat = config['forecastio']['lat']
 lng = config['forecastio']['lng']
 
-led.init()
-led.brightness(0)
+device = led.matrix(cascaded=1)
+device.brightness(0)
 weather_interval = 120.0  # interval in seconds
 next_weather_check = time.time() + weather_interval
 weather_info = {'icon': 'default', 'statement': ''}
+last_connection_failed = False
 
 while True:
 
     now = time.time()
     if now > next_weather_check:
         try:
+            last_connection_failed = False
             weather_info = check_weather(api_key, lat, lng)
         except ValueError:
             print "check_weather raised an exception."
-        except requests.exceptions.ConnectionError as e:
-            print "check_weather connection error."
-        except requests.exceptions.ConnectTimeout as e:
-            print "check_weather connection timeout."
-        except requests.exceptions.ReadTimeout as e:
-            print "check_weather read timeout."
-        except requests.exceptions.HTTPError as e:
-            print "check_weather connection error."
+        except (requests.exceptions.ConnectionError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.HTTPError):
+            last_connection_failed = True
+            print "connection exception"
         next_weather_check = now + weather_interval
 
     if (len(weather_info['statement'].strip()) > 0):
-            draw_weather_icon(weather_info['icon'])
-            time.sleep(2)
-            led.show_message(weather_info['statement'], transition=transitions.left_scroll)
+        draw_weather_icon(weather_info['icon'])
+        time.sleep(2)
+        device.show_message(weather_info['statement'], font=proportional(SINCLAIR_FONT))
     else:
         draw_time()
-
-    heartbeat()
+    if last_connection_failed:
+        heartbeat()
